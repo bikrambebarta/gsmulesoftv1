@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd 
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<salesforce:sfdc-config name="Salesforce_Config"
+		doc:name="Salesforce Config"
+		doc:id="7ccdff40-c0ba-4258-b8de-efc497f997e9">
+		<salesforce:basic-connection
+			username="${salesforce.username}"
+			password="${secure::salesforce.password}"
+			token="${secure::salesforce.token}" url="${salesforce.authUrl}" />
+	</salesforce:sfdc-config>
+	<http:listener-config
+		name="salesforce-sapi-httpListenerConfig">
+		<http:listener-connection host="0.0.0.0"
+			port="${http.port}" readTimeout="${http.timeout}"/>
+	</http:listener-config>
+	<apikit:config name="salesforce-sapi-config"
+		api="resource::1dcb93a8-9c6e-40a3-9277-811abced3715:salesforce-sapi:1.0.1:raml:zip:salesforce-sapi.raml"
+		outboundHeadersMapName="outboundHeaders"
+		httpStatusVarName="httpStatus" />
+	<configuration-properties
+		doc:name="Configuration properties"
+		doc:id="c761080f-8df9-4970-bff9-bd4d4af8d43e"
+		file="properties/${env}-config.yaml" />
+	<secure-properties:config
+		name="Secure_Properties_Config" doc:name="Secure Properties Config"
+		doc:id="d818f0c3-c64d-40d5-9eb0-7f828bef0936"
+		file="properties/${env}-secure-config.yaml" key="${encryptionkey}" />
+	<configuration-properties
+		doc:name="Configuration properties"
+		doc:id="62becf7f-61b6-4440-bf7c-979e091ab885"
+		file="properties\common.yaml" />
+</mule>

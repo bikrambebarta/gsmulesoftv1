@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<flow name="salesforce-object-create-flow" doc:id="e46c3c93-b104-4f31-b6c6-f427bbe3a317" >
+		<ee:transform doc:name="Payload and object" doc:id="15eba1a0-d26f-4b24-8d77-5db40c9390fe" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="objectData" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+				<ee:set-variable variableName="objectName" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.queryParams.objectName]]></ee:set-variable>
+				<ee:set-variable variableName="updateCriteria" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.queryParams.updateCriteria]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<salesforce:create doc:name="Create" doc:id="f9466269-a555-4e05-8ce5-9aabb640ecd3" config-ref="Salesforce_Config" type="#[vars.objectName]">
+			<salesforce:records ><![CDATA[#[vars.objectData]]]></salesforce:records>
+		</salesforce:create>
+		<ee:transform doc:name="Transform Message" doc:id="97364d1c-8ea2-44b0-82f3-916185291b23">
+			<ee:message>
+				<ee:set-payload><![CDATA[output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="ff08402d-0187-4343-abcc-d84b594ef987">
+				<flow-ref doc:name="Common error handling subFlow" doc:id="87eba3b1-d7c0-42f3-b5b9-9fc76c80ca0f" name="common-error-handling-subFlow"/>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>

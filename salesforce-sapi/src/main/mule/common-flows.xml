@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="common-error-handling-subFlow" doc:id="c320edd8-0fe9-4ded-9875-b91398d854c0" >
+		<ee:transform doc:name="Set error payload and error code" doc:id="07574555-41c7-437f-a617-c2dff0e51acf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"App name" : app.name,
+	"Error type" : error.errorType.namespace ++ ":" ++ error.errorType.identifier,
+	"Error message" : error.detailedDescription
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/java
+---
+if(error.errorType.identifier == "BAD_REQUEST") (400)
+else if(error.errorType.identifier == "METHOD_NOT_ALLOWED") (405)
+else if(error.errorType.identifier == "NOT_FOUND") (404)
+else if(error.errorType.identifier == "TIMEOUT") (408)
+else if(error.errorType.identifier == "BAD_REQUEST") (400)
+else (500)]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</sub-flow>
+</mule>
