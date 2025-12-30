@@ -12,9 +12,18 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
 			</ee:message>
 			<ee:variables >
 				<ee:set-variable variableName="objectData" ><![CDATA[%dw 2.0
-output application/json
+output application/java
 ---
-payload]]></ee:set-variable>
+payload map() ->
+{
+	"CloseDate": $."CloseDate" as Date {
+		format: "yyyy-MM-dd"
+	},
+	"Lavanda_ID__c": $."Lavanda_ID__c",
+	"Type": $."Type",
+	"Name": $."Name",
+	"StageName": $."StageName"
+}]]></ee:set-variable>
 				<ee:set-variable variableName="objectName" ><![CDATA[%dw 2.0
 output application/java
 ---
@@ -25,9 +34,9 @@ output application/java
 attributes.queryParams.updateCriteria]]></ee:set-variable>
 			</ee:variables>
 		</ee:transform>
-		<salesforce:create doc:name="Create" doc:id="f9466269-a555-4e05-8ce5-9aabb640ecd3" config-ref="Salesforce_Config" type="#[vars.objectName]">
+		<salesforce:upsert doc:name="Upsert" doc:id="f1212b59-2310-4bea-9024-6d2905c60231" config-ref="Salesforce_Config" objectType="#[vars.objectName]" externalIdFieldName="#[vars.updateCriteria]">
 			<salesforce:records ><![CDATA[#[vars.objectData]]]></salesforce:records>
-		</salesforce:create>
+		</salesforce:upsert>
 		<ee:transform doc:name="Transform Message" doc:id="97364d1c-8ea2-44b0-82f3-916185291b23">
 			<ee:message>
 				<ee:set-payload><![CDATA[output application/json

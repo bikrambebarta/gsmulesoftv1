@@ -26,7 +26,7 @@ http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/sc
 			port="${http.port}" readTimeout="${http.timeout}"/>
 	</http:listener-config>
 	<apikit:config name="salesforce-sapi-config"
-		api="resource::1dcb93a8-9c6e-40a3-9277-811abced3715:salesforce-sapi:1.0.1:raml:zip:salesforce-sapi.raml"
+		api="resource::1dcb93a8-9c6e-40a3-9277-811abced3715:salesforce-sapi:1.0.3:raml:zip:salesforce-sapi.raml"
 		outboundHeadersMapName="outboundHeaders"
 		httpStatusVarName="httpStatus" />
 	<configuration-properties
