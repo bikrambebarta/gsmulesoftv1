@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="lavanda-object-create-flow" doc:id="017b77d2-a36a-4964-a7aa-b84bdae58a06" >
+		<ee:transform doc:name="Payload and object" doc:id="6ae683b1-b4d9-44ed-bdf2-94dacde19a79" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="objectData" ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-variable>
+				<ee:set-variable variableName="objectName" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.queryParams.objectName]]></ee:set-variable>
+				<ee:set-variable variableName="updateCriteria" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.queryParams.updateCriteria]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<!-- [STUDIO:"Syetem 1 create sapi request"]<http:request method="GET" doc:name="Syetem 1 create sapi request" doc:id="8e76be3a-44ca-4dab-8366-78a9b84cac69" config-ref="system1_sapi_HTTP_Request_configuration" path="${sapi.salesforce.path}" >
+			<http:body ><![CDATA[#[vars.objectData&#93;&#93;&#93;></http:body>
+			<http:query-params ><![CDATA[#[output application/java
+&#45;&#45;-
+{
+	"updateCriteria" : vars.updateCriteria,
+	"objectName" : vars.objectName
+}&#93;&#93;&#93;></http:query-params>
+		</http:request> [STUDIO] -->
+		<ee:transform doc:name="Transform Message" doc:id="59ce8c84-29aa-4c95-a6cb-1810efe96c01" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+//payload
+"message" : "system1 record inserted successfully" ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<flow name="salesforce-object-create-flow" doc:id="acb7fa53-2f29-43f5-ab9b-1f6a1a3faeab" >
+		<ee:transform doc:name="Payload and object" doc:id="9aafd466-b749-40c7-90dc-0d981c50f621" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="objectData" ><![CDATA[//%dw 2.0
+//output application/java
+//---
+//payload map() ->
+//{
+//	"CloseDate": $."CloseDate" as Date {
+//		format: "yyyy-MM-dd"
+//	},
+//	"Lavanda_ID__c": $."id",
+//	"Type": $."type",
+//	"Name": $."Name",
+//	"StageName": $."StageName"
+//}
+
+%dw 2.0
+output application/json
+---
+[{
+    "CloseDate": "2025-12-30",
+    "Lavanda_ID__c": payload."id",
+    "Type": payload."type",
+    "Name": "Mule_Sample",
+    "StageName": "Mule_test"
+}]]]></ee:set-variable>
+				<ee:set-variable variableName="objectName" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.queryParams.objectName]]></ee:set-variable>
+				<ee:set-variable variableName="updateCriteria" ><![CDATA[%dw 2.0
+output application/java
+---
+attributes.queryParams.updateCriteria]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<http:request method="POST" doc:name="Salesforce create sapi request" doc:id="47e24063-a663-4633-a89a-58e19394e549" config-ref="HTTP_Request_configuration_salesforce_sapi" path="${sapi.salesforce.path}">
+			<http:body ><![CDATA[#[vars.objectData]]]></http:body>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"updateCriteria" : vars.updateCriteria,
+	"objectName" : vars.objectName
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="644d5bcb-e42b-4fcd-9b51-a49254b412f9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+//payload
+"message" : "salesforce record inserted successfully" ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4637bc70-30f1-4b07-aba8-3b5ab7275f25" >
+				<flow-ref doc:name="Common error handling subFlow" doc:id="10e8f16b-6a2e-4c0b-b90e-70f857325a24" name="common-error-handling-subFlow" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>

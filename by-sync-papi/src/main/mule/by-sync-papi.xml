@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <http:listener-config name="by-sync-papi-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="by-sync-papi-config" api="resource::1dcb93a8-9c6e-40a3-9277-811abced3715:by-sync-papi:1.0.3:raml:zip:by-sync-papi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="by-sync-papi-main">
+        <http:listener config-ref="by-sync-papi-httpListenerConfig" path="/v1/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="by-sync-papi-config" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a4e188a8-725a-4f68-b4e5-b4039082140e" >
+				<flow-ref doc:name="Common error handling subFlow" doc:id="99fc8335-eb30-4c63-85d3-db620d82f54f" name="common-error-handling-subFlow" />
+			</on-error-continue>
+		</error-handler>
+    </flow>
+    <flow name="post:\salesforce\object:application\json:by-sync-papi-config">
+        <flow-ref doc:name="Salesforce object create flow" doc:id="46a3ccd8-75ed-4f12-a074-91e2158afe8e" name="salesforce-object-create-flow" />
+    </flow>
+    <flow name="post:\lavanda\object:application\json:by-sync-papi-config">
+        <flow-ref doc:name="Lavanda object create flow" doc:id="4b2fb365-e505-484e-b4f7-5c8608ba03c6" name="lavanda-object-create-flow" />
+    </flow>
+</mule>

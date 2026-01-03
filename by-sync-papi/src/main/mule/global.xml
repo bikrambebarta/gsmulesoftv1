@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<configuration-properties
+		doc:name="Configuration properties"
+		doc:id="d26f1408-0617-46b8-8351-dba1609458c3"
+		file="properties\dev-config.yaml" />
+	<secure-properties:config
+		name="Secure_Properties_Config" doc:name="Secure Properties Config"
+		doc:id="fcf3aa07-f94a-4f83-bc47-1a8b809ad1e3"
+		file="properties\dev-secure-config.yaml" key="${encryptionkey}" />
+	<configuration-properties
+		doc:name="Configuration properties"
+		doc:id="858e5fee-4424-4ee3-a38f-802d21661388"
+		file="properties\common.yaml" />
+	<http:request-config
+		name="HTTP_Request_configuration_salesforce_sapi"
+		doc:name="HTTP Request configuration"
+		doc:id="17243b1c-d5a2-4297-8437-50b41710afd6">
+		<http:request-connection
+			host="${sapi.salesforce.host}" port="${sapi.salesforce.port}" protocol="HTTPS">
+			<tls:context>
+				<tls:trust-store insecure="true" />
+			</tls:context>
+		</http:request-connection>
+	</http:request-config>
+<!-- 	<http:request-config
+		name="system1_sapi_HTTP_Request_configuration"
+		doc:name="HTTP Request configuration"
+		doc:id="a3646c02-fae5-4c2a-bb99-601927def9f9">
+		<http:request-connection
+			host="${sapi.system1.host}" port="${sapi.system1.port}" />
+	</http:request-config> -->
+</mule>
