@@ -7,7 +7,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
-	<flow name="salesforce-object-create-flow" doc:id="acb7fa53-2f29-43f5-ab9b-1f6a1a3faeab" >
+	<flow name="salesforce-create-data-flow" doc:id="acb7fa53-2f29-43f5-ab9b-1f6a1a3faeab" >
 		<ee:transform doc:name="Payload and object" doc:id="9aafd466-b749-40c7-90dc-0d981c50f621" >
 			<ee:message />
 			<ee:variables >

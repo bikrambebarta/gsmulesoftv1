@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<flow name="lavanda-rest-invoke-flow" doc:id="017b77d2-a36a-4964-a7aa-b84bdae58a06" >
+		<ee:transform doc:name="oAuth payload" doc:id="6ae683b1-b4d9-44ed-bdf2-94dacde19a79" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="oAuthPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "grant_type": "client_credentials",
+    "client_id": Mule::p('secure::lavanda.clientid'),
+    "client_secret": Mule::p('secure::lavanda.clientsecret')
+}]]></ee:set-variable>
+				<ee:set-variable variableName="inputRequest" ><![CDATA[payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<http:request method="POST" doc:name="Lavanda get token" doc:id="8e76be3a-44ca-4dab-8366-78a9b84cac69" config-ref="HTTP_Request_configuration_lavanda" path="${lavanda.tokenPath}">
+			<http:body ><![CDATA[#[vars.oauthPayload]]]></http:body>
+		</http:request>
+		<choice doc:name="Choice" doc:id="32fc852b-14e9-4023-a9b4-13e934695c32" >
+			<when expression="#[!isEmpty(payload.access_token)]">
+				<http:request method="POST" doc:name="Lavanda REST" doc:id="87061311-a863-4603-81df-c612f2f332f8" config-ref="HTTP_Request_configuration_lavanda" path="${lavanda.basePath}">
+					<http:body ><![CDATA[#[vars.inputRequest]]]></http:body>
+					<http:headers ><![CDATA[#[output application/java
+---
+{
+	"Authorization" : "Bearer " ++ payload.access_token,
+	"Content-Type" : "application/json",
+	"X-API-Client-Name" : Mule::p('secure::lavanda.clientid')
+}]]]></http:headers>
+				</http:request>
+			</when>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="84d31694-4d16-43e1-b00d-fe98ecd9c6c2" message="#[%dw 2.0&#10;output application/json&#10;---&#10;payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="59ce8c84-29aa-4c95-a6cb-1810efe96c01" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/java
+---
+if(vars.inputRequest.query == "mutation Create(\$input: CreateContactMutationInput!) { crm { contact { create(input: \$input) { id } } } }")
+	(201)
+else
+	(200)]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="00ef4bc9-7602-4165-bfb6-8ef28923c0e5" >
+				<flow-ref doc:name="Common error handling subFlow" doc:id="af1b5aa8-09a6-4355-8f65-c00be1b3ae54" name="common-error-handling-subFlow" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>
