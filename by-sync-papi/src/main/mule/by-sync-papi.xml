@@ -18,9 +18,19 @@
         </error-handler>
     </flow>
     <flow name="post:\salesforce\object:application\json:by-sync-papi-config">
-        <flow-ref doc:name="Salesforce object create flow" doc:id="46a3ccd8-75ed-4f12-a074-91e2158afe8e" name="salesforce-create-data-flow" />
+		<ee:transform doc:name="Transform Message" doc:id="7ab32c62-c72f-4401-9e1e-0607f1754382" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"message" : "not implemented"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
     </flow>
-    <flow name="post:\lavanda:application\json:by-sync-papi-config">
+    <flow name="post:\gsms1:application\json:by-sync-papi-config">
+        <flow-ref doc:name="Salesforce create data flow" doc:id="46a3ccd8-75ed-4f12-a074-91e2158afe8e" name="salesforce-create-data-flow" />
+    </flow>
+    <flow name="post:\gsms2:application\json:by-sync-papi-config">
 		<flow-ref doc:name="Lavanda rest invoke flow" doc:id="4b2fb365-e505-484e-b4f7-5c8608ba03c6" name="lavanda-rest-invoke-flow" />
     </flow>
 </mule>

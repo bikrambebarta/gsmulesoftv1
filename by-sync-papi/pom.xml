@@ -61,7 +61,7 @@
 		<dependency>
 			<groupId>1dcb93a8-9c6e-40a3-9277-811abced3715</groupId>
 			<artifactId>by-sync-papi</artifactId>
-			<version>1.0.4</version>
+			<version>1.0.6</version>
 			<classifier>raml</classifier>
 			<type>zip</type>
 		</dependency>

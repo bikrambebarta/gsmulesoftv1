@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+
+	<flow name="salesforce-create-data-flow" doc:id="acb7fa53-2f29-43f5-ab9b-1f6a1a3faeab" >
+		<choice doc:name="Check object and type" doc:id="bad7b7e1-b92f-4093-a9b4-86eff0e721a7" >
+			<when expression='#[payload."type" == "v1.booking.created" or payload."type" == "v1.booking.updated"]'>
+				<ee:transform doc:name="Payload and object" doc:id="9aafd466-b749-40c7-90dc-0d981c50f621">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "operationName": "Booking",
+  "variables": {
+    "bookingId": payload.booking.id
+  },
+  "query": "query Booking(\$bookingId: ID!) {\n  bookings {\n    booking(bookingId: \$bookingId) {\n      id\n      checkIn\n      checkOut\n      status\n      externalBookingId\n      guestsCount\n      cancelable\n      contacts {\n        totalCount\n        nodes {\n          role\n          contact {\n            id\n            dateOfBirth\n            firstName\n            lastName\n            phoneNumber\n            primaryEmail\n            address {\n              city\n              countryCode\n              postCode\n              region\n              street1\n              street2\n            }\n            consent {\n              acceptedTermsAt\n              marketingByEmailAt\n              marketingByPhoneAt\n              piplConsentAt\n              privacyPolicyAt\n            }\n          }\n        }\n      }\n      accommodations {\n        checkIn\n        checkOut\n        current\n        unit {\n          id\n          code\n          unitType {\n            id\n            code\n          }\n        }\n      }\n    }\n  }\n}"
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="inputPayload"><![CDATA[payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+				<flow-ref doc:name="Lavanda rest invoke flow" doc:id="b0e4e925-43d4-45d8-a1aa-94cef95bf475" name="lavanda-rest-invoke-flow" />
+				<ee:transform doc:name="Transform Message" doc:id="049e3c10-1ec7-4b01-8b14-2c92691d1bb3">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"type": vars.inputPayload."type",
+	"data": payload
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<when expression='#[payload."type" == "v1.crm.contact.created" or payload."type" == "v1.crm.contact.updated"]'>
+				<ee:transform doc:name="Payload and object" doc:id="77633fbe-e7e0-4d5a-89f6-f3324894527f">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="inputPayload"><![CDATA[payload]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+			</when>
+			<when expression='#[payload."type" == "v1.crm.lead.created" or payload."type" == "v1.crm.lead.updated"]'>
+				<ee:transform doc:name="Payload and object" doc:id="db06f091-a6a1-40be-8ae0-77892b928125">
+					<ee:message />
+					<ee:variables>
+						<ee:set-variable variableName="inputPayload"><![CDATA[payload]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</when>
+		</choice>
+		<choice doc:name="Is payload empty" doc:id="7ae305c5-a067-4b19-8b30-635b973a6227" >
+			<when expression="#[!isEmpty(payload)]">
+				<http:request method="POST" doc:name="Greystar Salesforce API requests" doc:id="1e46d6e8-5c25-44ca-83ed-8cf2d103fd91" config-ref="HTTP_Request_configuration_greystarSf" path="${greystarSf.path}" />
+			</when>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="644d5bcb-e42b-4fcd-9b51-a49254b412f9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"message" : "Greystar salesforce request completed" ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4637bc70-30f1-4b07-aba8-3b5ab7275f25" >
+				<flow-ref doc:name="Common error handling subFlow" doc:id="10e8f16b-6a2e-4c0b-b90e-70f857325a24" name="common-error-handling-subFlow" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>

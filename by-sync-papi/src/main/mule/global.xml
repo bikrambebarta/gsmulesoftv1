@@ -1,73 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<mule
-	xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
-	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
-	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
-	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
-http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
-http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
-http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
-	<http:listener-config
-		name="by-sync-papi-httpListenerConfig">
-		<http:listener-connection host="0.0.0.0"
-			port="${http.port}" readTimeout="${http.timeout}"/>
-	</http:listener-config>
-	<apikit:config name="by-sync-papi-config"
-		api="resource::1dcb93a8-9c6e-40a3-9277-811abced3715:by-sync-papi:1.0.4:raml:zip:by-sync-papi.raml"
-		outboundHeadersMapName="outboundHeaders"
-		httpStatusVarName="httpStatus" />
-	<http:request-config
-		name="HTTP_Request_configuration_lavanda"
-		doc:name="HTTP Request configuration"
-		doc:id="3ee7f55e-a079-44f1-bed3-dbb1cc8d2eaa">
-		<http:request-connection protocol="HTTPS"
-			host="${lavanda.host}" port="${lavanda.port}">
-			<tls:context>
-				<tls:trust-store insecure="true" />
-			</tls:context>
-		</http:request-connection>
-	</http:request-config>
-	<configuration-properties
-		doc:name="Configuration properties"
-		doc:id="d26f1408-0617-46b8-8351-dba1609458c3"
-		file="properties\dev-config.yaml" />
-	<secure-properties:config
-		name="Secure_Properties_Config" doc:name="Secure Properties Config"
-		doc:id="fcf3aa07-f94a-4f83-bc47-1a8b809ad1e3"
-		file="properties\dev-secure-config.yaml" key="${encryptionkey}" />
-	<configuration-properties
-		doc:name="Configuration properties"
-		doc:id="858e5fee-4424-4ee3-a38f-802d21661388"
-		file="properties\common.yaml" />
-	<http:request-config
-		name="HTTP_Request_configuration_salesforce_sapi"
-		doc:name="HTTP Request configuration"
-		doc:id="17243b1c-d5a2-4297-8437-50b41710afd6">
-		<http:request-connection
-			host="${sapi.salesforce.host}" port="${sapi.salesforce.port}"
-			protocol="HTTPS">
-			<tls:context>
-				<tls:trust-store insecure="true" />
-			</tls:context>
-		</http:request-connection>
-	</http:request-config>
-	<!-- <http:request-config name="system1_sapi_HTTP_Request_configuration" 
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+    <http:listener-config name="by-sync-papi-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="${http.port}" readTimeout="${http.timeout}" />
+    </http:listener-config>
+    <apikit:config name="by-sync-papi-config" api="resource::1dcb93a8-9c6e-40a3-9277-811abced3715:by-sync-papi:1.0.6:raml:zip:by-sync-papi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <http:request-config name="HTTP_Request_configuration_lavanda" doc:name="HTTP Request configuration" doc:id="3ee7f55e-a079-44f1-bed3-dbb1cc8d2eaa">
+        <http:request-connection protocol="HTTPS" host="${lavanda.host}" port="${lavanda.port}">
+            <tls:context>
+                <tls:trust-store insecure="true" />
+            </tls:context>
+        </http:request-connection>
+    </http:request-config>
+    <configuration-properties doc:name="Configuration properties" doc:id="d26f1408-0617-46b8-8351-dba1609458c3" file="properties\dev-config.yaml" />
+    <secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="fcf3aa07-f94a-4f83-bc47-1a8b809ad1e3" file="properties\dev-secure-config.yaml" key="${encryptionkey}" />
+    <configuration-properties doc:name="Configuration properties" doc:id="858e5fee-4424-4ee3-a38f-802d21661388" file="properties\common.yaml" />
+    <http:request-config name="HTTP_Request_configuration_salesforce_sapi" doc:name="HTTP Request configuration" doc:id="17243b1c-d5a2-4297-8437-50b41710afd6">
+        <http:request-connection host="${sapi.salesforce.host}" port="${sapi.salesforce.port}" protocol="HTTPS">
+            <tls:context>
+                <tls:trust-store insecure="true" />
+            </tls:context>
+        </http:request-connection>
+    </http:request-config>
+    <!-- <http:request-config name="system1_sapi_HTTP_Request_configuration" 
 		doc:name="HTTP Request configuration" doc:id="a3646c02-fae5-4c2a-bb99-601927def9f9"> 
 		<http:request-connection host="${sapi.system1.host}" port="${sapi.system1.port}" 
 		/> </http:request-config> -->
-	<api-gateway:autodiscovery
-		apiId="${autodiscovery.id}" ignoreBasePath="true"
-		doc:name="API Autodiscovery"
-		doc:id="56b975bd-6413-445c-bc84-f22d588cf03d"
-		flowRef="by-sync-papi-main" />
+    <api-gateway:autodiscovery apiId="${autodiscovery.id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="56b975bd-6413-445c-bc84-f22d588cf03d" flowRef="by-sync-papi-main" />
+    <http:request-config name="HTTP_Request_configuration_greystarSf" doc:name="HTTP Request configuration" doc:id="ad823473-8e3d-4669-9147-901643eb10a1" basePath="${greystarSf.basePath}">
+        <http:request-connection protocol="HTTPS" host="${greystarSf.host}" port="${greystarSf.port}">
+            <tls:context>
+                <tls:trust-store insecure="true" />
+                <tls:key-store type="pkcs12" />
+            </tls:context>
+        </http:request-connection>
+    </http:request-config>
 </mule>

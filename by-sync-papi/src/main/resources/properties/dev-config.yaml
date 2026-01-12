@@ -12,3 +12,11 @@ lavanda:
   port: "443"
   basePath: "/v1"
   tokenPath: "/v1/oauth2/token"
+  
+  
+greystarSf:
+  host : "greystareuropeholdings--alicorndev.sandbox.my.salesforce-sites.com"
+  port: "443"
+  basePath: "/lavandawebhook/services/apexrest"
+  path: "/lavandawebhook"
+  
